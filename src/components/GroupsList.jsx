@@ -12,7 +12,8 @@ const GroupsList = ({ refreshTrigger }) => {
       setLoading(true);
       try {
         const data = await api.getGroups();
-        setGroups(data);
+        console.log("Fetched groups:", data);
+        setGroups(Array.isArray(data) ? data : []);
       } catch (error) {
         toast.error('Failed to load groups');
         console.error('Error loading groups:', error);

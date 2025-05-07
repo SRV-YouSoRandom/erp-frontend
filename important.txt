@@ -1,0 +1,3 @@
+scp -r dist root@212.90.121.86:/root/erprollup/frontend
+
+scp -r server.js root@212.90.121.86:/root/erprollup/frontend

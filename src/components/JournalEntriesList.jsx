@@ -12,7 +12,8 @@ const JournalEntriesList = ({ refreshTrigger }) => {
       setLoading(true);
       try {
         const data = await api.getJournalEntries();
-        setEntries(data);
+        console.log("Fetched journal entries:", data);
+        setEntries(Array.isArray(data) ? data : []);
       } catch (error) {
         toast.error('Failed to load journal entries');
         console.error('Error loading journal entries:', error);

@@ -13,6 +13,7 @@ app.use(bodyParser.json());
 // Execute CLI command and return result
 const executeCommand = (command) => {
   return new Promise((resolve, reject) => {
+    console.log(`Executing command: ${command}`);
     exec(command, (error, stdout, stderr) => {
       if (error) {
         console.error(`Error executing command: ${error.message}`);
@@ -42,7 +43,7 @@ app.post('/api/cli', async (req, res) => {
     
     switch (command) {
       case 'getKeys':
-        execCommand = 'rollkit keys list --output json --keyring-backend test';
+        execCommand = 'rollkit keys list --keyring-backend test --output json';
         break;
         
       case 'createGroup':

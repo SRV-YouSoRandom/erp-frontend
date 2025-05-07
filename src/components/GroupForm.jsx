@@ -7,6 +7,7 @@ import cli from '../services/cli';
 const GroupForm = ({ onGroupCreated }) => {
   const [addresses, setAddresses] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const form = useForm({
     initialValues: {
@@ -23,20 +24,30 @@ const GroupForm = ({ onGroupCreated }) => {
 
   useEffect(() => {
     const fetchAddresses = async () => {
+      setIsLoading(true);
       try {
         const keysData = await cli.getKeys();
-        const formattedAddresses = keysData.keys.map(key => ({
-          value: key.address,
-          label: `${key.name} (${key.address})`,
-        }));
-        setAddresses(formattedAddresses);
+        console.log("Fetched keys:", keysData);
         
-        if (formattedAddresses.length > 0) {
-          form.setFieldValue('fromAddress', formattedAddresses[0].value);
+        if (keysData && keysData.keys) {
+          const formattedAddresses = keysData.keys.map(key => ({
+            value: key.address,
+            label: `${key.name} (${key.address})`,
+          }));
+          setAddresses(formattedAddresses);
+          
+          if (formattedAddresses.length > 0) {
+            form.setFieldValue('fromAddress', formattedAddresses[0].value);
+          }
+        } else {
+          console.error('Invalid keys data:', keysData);
+          toast.error('Failed to load addresses');
         }
       } catch (error) {
         toast.error('Failed to load addresses');
         console.error('Error loading addresses:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 

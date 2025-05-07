@@ -34,23 +34,33 @@ const JournalEntryForm = ({ onEntryCreated }) => {
       try {
         // Fetch addresses
         const keysData = await cli.getKeys();
-        const formattedAddresses = keysData.keys.map(key => ({
-          value: key.address,
-          label: `${key.name} (${key.address})`,
-        }));
-        setAddresses(formattedAddresses);
-        
-        if (formattedAddresses.length > 0) {
-          form.setFieldValue('fromAddress', formattedAddresses[0].value);
+        if (keysData && keysData.keys) {
+          const formattedAddresses = keysData.keys.map(key => ({
+            value: key.address,
+            label: `${key.name} (${key.address})`,
+          }));
+          setAddresses(formattedAddresses);
+          
+          if (formattedAddresses.length > 0) {
+            form.setFieldValue('fromAddress', formattedAddresses[0].value);
+          }
+        } else {
+          console.error('Invalid keys data:', keysData);
+          toast.error('Failed to load addresses');
         }
         
         // Fetch groups
         const groupsData = await api.getGroups();
-        const formattedGroups = groupsData.map(group => ({
-          value: group.name,
-          label: `${group.name} - ${group.description}`,
-        }));
-        setGroups(formattedGroups);
+        if (Array.isArray(groupsData)) {
+          const formattedGroups = groupsData.map(group => ({
+            value: group.name, // Using name for groups as that's what the CLI expects
+            label: `${group.name} - ${group.description}`,
+          }));
+          setGroups(formattedGroups);
+        } else {
+          console.error('Invalid groups data:', groupsData);
+          toast.error('Failed to load groups');
+        }
       } catch (error) {
         toast.error('Failed to load data');
         console.error('Error loading data:', error);

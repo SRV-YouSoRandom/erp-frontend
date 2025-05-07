@@ -7,7 +7,13 @@ const api = {
   async getGroups() {
     try {
       const response = await axios.get(`${BASE_URL}/erprollup/ledger/group`);
-      return response.data.Group || [];
+      // Handle different response formats
+      if (response.data && response.data.Group) {
+        return response.data.Group;
+      } else if (Array.isArray(response.data)) {
+        return response.data;
+      }
+      return [];
     } catch (error) {
       console.error('Error fetching groups:', error);
       throw error;
@@ -17,7 +23,7 @@ const api = {
   async getGroup(id) {
     try {
       const response = await axios.get(`${BASE_URL}/erprollup/ledger/group/${id}`);
-      return response.data.Group;
+      return response.data.Group || response.data;
     } catch (error) {
       console.error(`Error fetching group ${id}:`, error);
       throw error;
@@ -28,7 +34,12 @@ const api = {
   async getJournalEntries() {
     try {
       const response = await axios.get(`${BASE_URL}/erprollup/ledger/journal_entry`);
-      return response.data.JournalEntry || [];
+      if (response.data && response.data.JournalEntry) {
+        return response.data.JournalEntry;
+      } else if (Array.isArray(response.data)) {
+        return response.data;
+      }
+      return [];
     } catch (error) {
       console.error('Error fetching journal entries:', error);
       throw error;
@@ -38,7 +49,7 @@ const api = {
   async getJournalEntry(id) {
     try {
       const response = await axios.get(`${BASE_URL}/erprollup/ledger/journal_entry/${id}`);
-      return response.data.JournalEntry;
+      return response.data.JournalEntry || response.data;
     } catch (error) {
       console.error(`Error fetching journal entry ${id}:`, error);
       throw error;

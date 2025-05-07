@@ -18,12 +18,24 @@ const cli = {
       });
       
       if (!response.ok) {
-        throw new Error(`CLI command failed: ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(errorData.error || `CLI command failed: ${response.statusText}`);
       }
       
       return await response.json();
     } catch (error) {
       console.error('Error executing CLI command:', error);
+      throw error;
+    }
+  },
+
+  // Keys
+  async getKeys() {
+    try {
+      const result = await this.execute('getKeys');
+      return result;
+    } catch (error) {
+      console.error('Error getting keys:', error);
       throw error;
     }
   },
@@ -59,11 +71,6 @@ const cli = {
       description,
       fromAddress,
     });
-  },
-
-  // Keys
-  async getKeys() {
-    return this.execute('getKeys');
   },
 };
 
