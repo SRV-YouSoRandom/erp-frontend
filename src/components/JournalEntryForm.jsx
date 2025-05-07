@@ -1,0 +1,152 @@
+import { useState, useEffect } from 'react';
+import { TextInput, NumberInput, Button, Select, Box, Title, Group } from '@mantine/core';
+import { useForm } from '@mantine/form';
+import { toast } from 'react-toastify';
+import cli from '../services/cli';
+import api from '../services/api';
+
+const JournalEntryForm = ({ onEntryCreated }) => {
+  const [addresses, setAddresses] = useState([]);
+  const [groups, setGroups] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const form = useForm({
+    initialValues: {
+      description: '',
+      debitGroup: '',
+      creditGroup: '',
+      amount: 0,
+      fromAddress: '',
+    },
+    validate: {
+      description: (value) => (value ? null : 'Description is required'),
+      debitGroup: (value) => (value ? null : 'Debit Group is required'),
+      creditGroup: (value) => (value ? null : 'Credit Group is required'),
+      amount: (value) => (value > 0 ? null : 'Amount must be greater than 0'),
+      fromAddress: (value) => (value ? null : 'From address is required'),
+    },
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        // Fetch addresses
+        const keysData = await cli.getKeys();
+        const formattedAddresses = keysData.keys.map(key => ({
+          value: key.address,
+          label: `${key.name} (${key.address})`,
+        }));
+        setAddresses(formattedAddresses);
+        
+        if (formattedAddresses.length > 0) {
+          form.setFieldValue('fromAddress', formattedAddresses[0].value);
+        }
+        
+        // Fetch groups
+        const groupsData = await api.getGroups();
+        const formattedGroups = groupsData.map(group => ({
+          value: group.name,
+          label: `${group.name} - ${group.description}`,
+        }));
+        setGroups(formattedGroups);
+      } catch (error) {
+        toast.error('Failed to load data');
+        console.error('Error loading data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleSubmit = async (values) => {
+    setIsSubmitting(true);
+    try {
+      await cli.createJournalEntry(
+        values.description,
+        values.debitGroup,
+        values.creditGroup,
+        values.amount,
+        values.fromAddress
+      );
+      toast.success('Journal entry created successfully!');
+      form.reset();
+      if (onEntryCreated) onEntryCreated();
+    } catch (error) {
+      toast.error('Failed to create journal entry');
+      console.error('Error creating journal entry:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <Box className="form-container">
+      <Title order={4} mb={15}>Create Journal Entry</Title>
+      
+      <form onSubmit={form.onSubmit(handleSubmit)}>
+        <TextInput
+          label="Description"
+          placeholder="e.g., Initial investment, Office supplies purchase"
+          required
+          mb={15}
+          {...form.getInputProps('description')}
+        />
+        
+        <Select
+          label="Debit Group"
+          placeholder="Select debit group"
+          data={groups}
+          required
+          mb={15}
+          {...form.getInputProps('debitGroup')}
+          disabled={isLoading}
+        />
+        
+        <Select
+          label="Credit Group"
+          placeholder="Select credit group"
+          data={groups}
+          required
+          mb={15}
+          {...form.getInputProps('creditGroup')}
+          disabled={isLoading}
+        />
+        
+        <NumberInput
+          label="Amount"
+          placeholder="Enter amount"
+          min={1}
+          required
+          mb={15}
+          {...form.getInputProps('amount')}
+        />
+        
+        <Select
+          label="From Address"
+          placeholder="Select sender address"
+          data={addresses}
+          required
+          mb={20}
+          {...form.getInputProps('fromAddress')}
+          disabled={isLoading}
+        />
+        
+        <Group justify="flex-end">
+          <Button 
+            type="submit" 
+            loading={isSubmitting || isLoading}
+            disabled={isLoading}
+          >
+            Create Entry
+          </Button>
+        </Group>
+      </form>
+    </Box>
+  );
+};
+
+export default JournalEntryForm;
