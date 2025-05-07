@@ -37,7 +37,9 @@ const SendAndRecordForm = () => {
       try {
         // Fetch addresses
         const keysData = await cli.getKeys();
-        if (keysData && keysData.keys) {
+        console.log("Fetched keys in SendAndRecordForm:", keysData);
+        
+        if (keysData && Array.isArray(keysData.keys)) {
           const formattedAddresses = keysData.keys.map(key => ({
             value: key.address,
             label: `${key.name} (${key.address})`,
@@ -46,6 +48,7 @@ const SendAndRecordForm = () => {
           
           if (formattedAddresses.length > 0) {
             form.setFieldValue('fromAddress', formattedAddresses[0].value);
+            form.setFieldValue('receiverAddress', formattedAddresses[0].value);
           }
         } else {
           console.error('Invalid keys data:', keysData);
@@ -54,7 +57,9 @@ const SendAndRecordForm = () => {
         
         // Fetch groups
         const groupsData = await api.getGroups();
-        if (Array.isArray(groupsData)) {
+        console.log("Fetched groups in SendAndRecordForm:", groupsData);
+        
+        if (Array.isArray(groupsData) && groupsData.length > 0) {
           const formattedGroups = groupsData.map(group => ({
             // Here we need the ID as the send-and-record command uses IDs
             value: group.id.toString(),

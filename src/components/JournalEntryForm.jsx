@@ -34,7 +34,9 @@ const JournalEntryForm = ({ onEntryCreated }) => {
       try {
         // Fetch addresses
         const keysData = await cli.getKeys();
-        if (keysData && keysData.keys) {
+        console.log("Fetched keys in JournalEntryForm:", keysData);
+        
+        if (keysData && Array.isArray(keysData.keys)) {
           const formattedAddresses = keysData.keys.map(key => ({
             value: key.address,
             label: `${key.name} (${key.address})`,
@@ -51,7 +53,9 @@ const JournalEntryForm = ({ onEntryCreated }) => {
         
         // Fetch groups
         const groupsData = await api.getGroups();
-        if (Array.isArray(groupsData)) {
+        console.log("Fetched groups in JournalEntryForm:", groupsData);
+        
+        if (Array.isArray(groupsData) && groupsData.length > 0) {
           const formattedGroups = groupsData.map(group => ({
             value: group.name, // Using name for groups as that's what the CLI expects
             label: `${group.name} - ${group.description}`,
@@ -113,7 +117,7 @@ const JournalEntryForm = ({ onEntryCreated }) => {
           required
           mb={15}
           {...form.getInputProps('debitGroup')}
-          disabled={isLoading}
+          disabled={isLoading || groups.length === 0}
         />
         
         <Select
@@ -123,7 +127,7 @@ const JournalEntryForm = ({ onEntryCreated }) => {
           required
           mb={15}
           {...form.getInputProps('creditGroup')}
-          disabled={isLoading}
+          disabled={isLoading || groups.length === 0}
         />
         
         <NumberInput
@@ -142,7 +146,7 @@ const JournalEntryForm = ({ onEntryCreated }) => {
           required
           mb={20}
           {...form.getInputProps('fromAddress')}
-          disabled={isLoading}
+          disabled={isLoading || addresses.length === 0}
         />
         
         <Group justify="flex-end">

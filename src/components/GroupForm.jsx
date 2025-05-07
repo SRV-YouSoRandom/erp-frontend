@@ -29,7 +29,8 @@ const GroupForm = ({ onGroupCreated }) => {
         const keysData = await cli.getKeys();
         console.log("Fetched keys:", keysData);
         
-        if (keysData && keysData.keys) {
+        // Check if keysData has the keys property and it's an array
+        if (keysData && Array.isArray(keysData.keys)) {
           const formattedAddresses = keysData.keys.map(key => ({
             value: key.address,
             label: `${key.name} (${key.address})`,
@@ -101,6 +102,7 @@ const GroupForm = ({ onGroupCreated }) => {
           required
           mb={20}
           {...form.getInputProps('fromAddress')}
+          disabled={isLoading}
         />
         
         <Group justify="flex-end">

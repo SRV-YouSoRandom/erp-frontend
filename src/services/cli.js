@@ -3,6 +3,43 @@
 
 const CLI_SERVER_URL = '/api/cli'; // Adjust this to your CLI server endpoint
 
+// Helper function to normalize keys data format
+const normalizeKeysData = (data) => {
+  // If data is already properly formatted with a 'keys' array
+  if (data && Array.isArray(data.keys)) {
+    return data;
+  }
+  
+  // If data is an array directly
+  if (Array.isArray(data)) {
+    return { keys: data };
+  }
+  
+  // If data is an object with name-address pairs
+  if (data && typeof data === 'object' && !Array.isArray(data)) {
+    if (data.keys && !Array.isArray(data.keys)) {
+      // If 'keys' exists but is not an array (like an object)
+      const keyArray = [];
+      Object.entries(data.keys).forEach(([name, address]) => {
+        keyArray.push({ name, address, type: 'local' });
+      });
+      return { keys: keyArray };
+    } else {
+      // If we have a flat object with name-address pairs
+      const keyArray = [];
+      Object.entries(data).forEach(([name, address]) => {
+        if (typeof address === 'string') {
+          keyArray.push({ name, address, type: 'local' });
+        }
+      });
+      return { keys: keyArray };
+    }
+  }
+  
+  // If none of the above, return an empty keys array
+  return { keys: [] };
+};
+
 const cli = {
   async execute(command, params = {}) {
     try {
@@ -33,7 +70,8 @@ const cli = {
   async getKeys() {
     try {
       const result = await this.execute('getKeys');
-      return result;
+      // Normalize the keys data to ensure it has the expected format
+      return normalizeKeysData(result);
     } catch (error) {
       console.error('Error getting keys:', error);
       throw error;
