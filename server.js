@@ -76,12 +76,6 @@ app.post('/api/cli', async (req, res) => {
 // Serve static files from the React app
 app.use(express.static('build'));
 
-// For any request that doesn't match an API endpoint or static file, 
-// send the index.html for client-side routing
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
-
 // Start the server
 app.listen(port, () => {
   console.log(`CLI Server running on port ${port}`);
