@@ -17,6 +17,8 @@ const JournalEntryForm = ({ onEntryCreated }) => {
       debitGroup: '',
       creditGroup: '',
       amount: 0,
+      sender: '',      // Added sender field
+      receiver: '',    // Added receiver field
       fromAddress: '',
     },
     validate: {
@@ -24,6 +26,8 @@ const JournalEntryForm = ({ onEntryCreated }) => {
       debitGroup: (value) => (value ? null : 'Debit Group is required'),
       creditGroup: (value) => (value ? null : 'Credit Group is required'),
       amount: (value) => (value > 0 ? null : 'Amount must be greater than 0'),
+      sender: (value) => (value ? null : 'Sender is required'),     // Added validation
+      receiver: (value) => (value ? null : 'Receiver is required'), // Added validation
       fromAddress: (value) => (value ? null : 'From address is required'),
     },
   });
@@ -45,6 +49,9 @@ const JournalEntryForm = ({ onEntryCreated }) => {
           
           if (formattedAddresses.length > 0) {
             form.setFieldValue('fromAddress', formattedAddresses[0].value);
+            // Set default sender and receiver to the first address
+            form.setFieldValue('sender', formattedAddresses[0].value);
+            form.setFieldValue('receiver', formattedAddresses[0].value);
           }
         } else {
           console.error('Invalid keys data:', keysData);
@@ -86,6 +93,8 @@ const JournalEntryForm = ({ onEntryCreated }) => {
         values.debitGroup,
         values.creditGroup,
         values.amount,
+        values.sender,       // Added sender
+        values.receiver,     // Added receiver
         values.fromAddress
       );
       console.log("Journal entry response:", result);
@@ -141,10 +150,32 @@ const JournalEntryForm = ({ onEntryCreated }) => {
           mb={15}
           {...form.getInputProps('amount')}
         />
+
+        {/* Added Sender field */}
+        <Select
+          label="Sender Address"
+          placeholder="Select sender address"
+          data={addresses}
+          required
+          mb={15}
+          {...form.getInputProps('sender')}
+          disabled={isLoading || addresses.length === 0}
+        />
+        
+        {/* Added Receiver field */}
+        <Select
+          label="Receiver Address"
+          placeholder="Select receiver address"
+          data={addresses}
+          required
+          mb={15}
+          {...form.getInputProps('receiver')}
+          disabled={isLoading || addresses.length === 0}
+        />
         
         <Select
-          label="From Address"
-          placeholder="Select sender address"
+          label="From Address (Transaction Signer)"
+          placeholder="Select transaction signer address"
           data={addresses}
           required
           mb={20}

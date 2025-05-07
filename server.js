@@ -52,13 +52,13 @@ app.post('/api/cli', async (req, res) => {
         break;
         
       case 'createJournalEntry':
-        // Fix: Use group IDs consistently
-        execCommand = `rollkit tx ledger create-journal-entry "${params.description}" "${params.debitGroup}" "${params.creditGroup}" ${params.amount} --from ${params.fromAddress} --chain-id erprollup -y --fees 500stake --output json`;
+        // Updated to include sender and receiver parameters
+        execCommand = `rollkit tx ledger create-journal-entry "${params.description}" "${params.debitGroup}" "${params.creditGroup}" ${params.amount} "${params.sender}" "${params.receiver}" --from ${params.fromAddress} --chain-id erprollup -y --fees 500stake --output json`;
         break;
         
       case 'sendAndRecord':
-        // Fix: Ensure all params are correctly passed and in the right order
-        execCommand = `rollkit tx ledger send-and-record ${params.receiverAddress} "${params.amount}${params.denom}" ${params.debitGroupId} ${params.creditGroupId} "${params.description}" --from ${params.fromAddress} --chain-id erprollup --gas auto --fees 500stake -y --output json`;
+        // Updated to match the expected parameter order
+        execCommand = `rollkit tx ledger send-and-record ${params.receiverAddress} ${params.amount} ${params.denom} "${params.debitGroupId}" "${params.creditGroupId}" "${params.description}" --from ${params.fromAddress} --chain-id erprollup --gas auto --fees 500stake -y --output json`;
         break;
         
       default:

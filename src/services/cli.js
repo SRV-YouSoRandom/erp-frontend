@@ -90,11 +90,11 @@ const cli = {
     });
   },
 
-  // Journal Entries
-  async createJournalEntry(description, debitGroup, creditGroup, amount, fromAddress) {
+  // Journal Entries - Updated to include sender and receiver parameters
+  async createJournalEntry(description, debitGroup, creditGroup, amount, sender, receiver, fromAddress) {
     // Make sure we're passing the right parameters
     console.log("Creating journal entry with:", {
-      description, debitGroup, creditGroup, amount, fromAddress
+      description, debitGroup, creditGroup, amount, sender, receiver, fromAddress
     });
     
     return this.execute('createJournalEntry', {
@@ -102,11 +102,13 @@ const cli = {
       debitGroup,
       creditGroup,
       amount: Number(amount), // Ensure amount is a number
+      sender,
+      receiver,
       fromAddress,
     });
   },
 
-  // Send and Record
+  // Send and Record - Updated to match expected parameter order
   async sendAndRecord(receiverAddress, amount, denom, debitGroupId, creditGroupId, description, fromAddress) {
     // Make sure we're passing the right parameters
     console.log("Sending and recording with:", {

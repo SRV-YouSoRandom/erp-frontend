@@ -53,6 +53,8 @@ const JournalEntriesList = ({ refreshTrigger }) => {
             <Table.Th>Debit Group</Table.Th>
             <Table.Th>Credit Group</Table.Th>
             <Table.Th>Amount</Table.Th>
+            <Table.Th>Sender</Table.Th>
+            <Table.Th>Receiver</Table.Th>
             <Table.Th>Creator</Table.Th>
           </Table.Tr>
         </Table.Thead>
@@ -64,6 +66,8 @@ const JournalEntriesList = ({ refreshTrigger }) => {
               <Table.Td>{entry.debitGroup}</Table.Td>
               <Table.Td>{entry.creditGroup}</Table.Td>
               <Table.Td>{entry.amount}</Table.Td>
+              <Table.Td>{entry.sender}</Table.Td>
+              <Table.Td>{entry.receiver}</Table.Td>
               <Table.Td>{entry.creator}</Table.Td>
             </Table.Tr>
           ))}
