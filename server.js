@@ -2,6 +2,7 @@ const express = require('express');
 const { exec } = require('child_process');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -51,11 +52,13 @@ app.post('/api/cli', async (req, res) => {
         break;
         
       case 'createJournalEntry':
+        // Fix: Use group IDs consistently
         execCommand = `rollkit tx ledger create-journal-entry "${params.description}" "${params.debitGroup}" "${params.creditGroup}" ${params.amount} --from ${params.fromAddress} --chain-id erprollup -y --fees 500stake --output json`;
         break;
         
       case 'sendAndRecord':
-        execCommand = `rollkit tx ledger send-and-record ${params.receiverAddress} ${params.amount} ${params.denom} ${params.debitGroupId} ${params.creditGroupId} "${params.description}" --from ${params.fromAddress} --gas auto --fees 500stake -y --output json`;
+        // Fix: Ensure all params are correctly passed and in the right order
+        execCommand = `rollkit tx ledger send-and-record ${params.receiverAddress} "${params.amount}${params.denom}" ${params.debitGroupId} ${params.creditGroupId} "${params.description}" --from ${params.fromAddress} --chain-id erprollup --gas auto --fees 500stake -y --output json`;
         break;
         
       default:
@@ -65,12 +68,19 @@ app.post('/api/cli', async (req, res) => {
     const result = await executeCommand(execCommand);
     res.json(result);
   } catch (error) {
+    console.error('Command execution error:', error);
     res.status(500).json({ error: error.message || 'An error occurred executing the command' });
   }
 });
 
 // Serve static files from the React app
 app.use(express.static('build'));
+
+// For any request that doesn't match an API endpoint or static file, 
+// send the index.html for client-side routing
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 
 // Start the server
 app.listen(port, () => {

@@ -84,7 +84,8 @@ const SendAndRecordForm = () => {
   const handleSubmit = async (values) => {
     setIsSubmitting(true);
     try {
-      await cli.sendAndRecord(
+      console.log("Submitting send and record with values:", values);
+      const result = await cli.sendAndRecord(
         values.receiverAddress,
         values.amount,
         values.denom,
@@ -93,10 +94,11 @@ const SendAndRecordForm = () => {
         values.description,
         values.fromAddress
       );
+      console.log("Send and record response:", result);
       toast.success('Transaction completed and recorded successfully!');
       form.reset();
     } catch (error) {
-      toast.error('Failed to send and record transaction');
+      toast.error('Failed to send and record transaction: ' + (error.message || 'Unknown error'));
       console.error('Error in send and record:', error);
     } finally {
       setIsSubmitting(false);

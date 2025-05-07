@@ -57,7 +57,8 @@ const JournalEntryForm = ({ onEntryCreated }) => {
         
         if (Array.isArray(groupsData) && groupsData.length > 0) {
           const formattedGroups = groupsData.map(group => ({
-            value: group.name, // Using name for groups as that's what the CLI expects
+            // Updated: using group ID instead of name for the command
+            value: group.id.toString(),
             label: `${group.name} - ${group.description}`,
           }));
           setGroups(formattedGroups);
@@ -79,18 +80,20 @@ const JournalEntryForm = ({ onEntryCreated }) => {
   const handleSubmit = async (values) => {
     setIsSubmitting(true);
     try {
-      await cli.createJournalEntry(
+      console.log("Submitting journal entry with values:", values);
+      const result = await cli.createJournalEntry(
         values.description,
         values.debitGroup,
         values.creditGroup,
         values.amount,
         values.fromAddress
       );
+      console.log("Journal entry response:", result);
       toast.success('Journal entry created successfully!');
       form.reset();
       if (onEntryCreated) onEntryCreated();
     } catch (error) {
-      toast.error('Failed to create journal entry');
+      toast.error('Failed to create journal entry: ' + (error.message || 'Unknown error'));
       console.error('Error creating journal entry:', error);
     } finally {
       setIsSubmitting(false);

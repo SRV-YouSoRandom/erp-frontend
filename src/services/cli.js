@@ -43,6 +43,7 @@ const normalizeKeysData = (data) => {
 const cli = {
   async execute(command, params = {}) {
     try {
+      console.log(`Executing CLI command: ${command} with params:`, params);
       const response = await fetch(CLI_SERVER_URL, {
         method: 'POST',
         headers: {
@@ -59,7 +60,9 @@ const cli = {
         throw new Error(errorData.error || `CLI command failed: ${response.statusText}`);
       }
       
-      return await response.json();
+      const result = await response.json();
+      console.log(`CLI command result:`, result);
+      return result;
     } catch (error) {
       console.error('Error executing CLI command:', error);
       throw error;
@@ -89,20 +92,30 @@ const cli = {
 
   // Journal Entries
   async createJournalEntry(description, debitGroup, creditGroup, amount, fromAddress) {
+    // Make sure we're passing the right parameters
+    console.log("Creating journal entry with:", {
+      description, debitGroup, creditGroup, amount, fromAddress
+    });
+    
     return this.execute('createJournalEntry', {
       description,
       debitGroup,
       creditGroup,
-      amount,
+      amount: Number(amount), // Ensure amount is a number
       fromAddress,
     });
   },
 
   // Send and Record
   async sendAndRecord(receiverAddress, amount, denom, debitGroupId, creditGroupId, description, fromAddress) {
+    // Make sure we're passing the right parameters
+    console.log("Sending and recording with:", {
+      receiverAddress, amount, denom, debitGroupId, creditGroupId, description, fromAddress
+    });
+    
     return this.execute('sendAndRecord', {
       receiverAddress,
-      amount,
+      amount: Number(amount), // Ensure amount is a number
       denom,
       debitGroupId,
       creditGroupId,
